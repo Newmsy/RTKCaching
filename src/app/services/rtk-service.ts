@@ -152,7 +152,6 @@ export class RtkService {
           console.log(
             `Triggering refetch for: ${key} (${cacheEntry.subscriptionCount} active subscribers)`,
           );
-          cacheEntry.isStale = false;
           cacheEntry.refetch$.next();
         } else {
           console.log(
@@ -172,7 +171,6 @@ export class RtkService {
         console.log(
           `Triggering refetch for: ${key} (${value.subscriptionCount} active subscribers)`,
         );
-        value.isStale = false;
         value.refetch$.next();
       } else {
         console.log(

@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { RtkService, QueryResult } from '../services/rtk-service';
 import { Location, WeatherResponse } from '../models/weather';
 
@@ -8,8 +9,9 @@ import { Location, WeatherResponse } from '../models/weather';
   templateUrl: './lazy-request-demo.component.html',
   styleUrl: './lazy-request-demo.component.css',
 })
-export class LazyRequestDemoComponent {
+export class LazyRequestDemoComponent implements OnDestroy {
   private rtkService = inject(RtkService);
+  private currentSubscription?: Subscription;
 
   public locations: Location[] = [
     { name: 'Paris', latitude: 48.8566, longitude: 2.3522 },
@@ -25,6 +27,9 @@ export class LazyRequestDemoComponent {
   public fetchCount = signal(0);
 
   public fetchWeather(location: Location) {
+    // Unsubscribe from previous request to prevent subscription leaks
+    this.currentSubscription?.unsubscribe();
+
     this.selectedLocation.set(location);
     this.fetchCount.update((c) => c + 1);
 
@@ -47,7 +52,7 @@ export class LazyRequestDemoComponent {
       })();
     }
 
-    request$.subscribe({
+    this.currentSubscription = request$.subscribe({
       next: (result: QueryResult<WeatherResponse>) => {
         this.loading.set(result.isLoading);
         this.weatherData.set(result.data);
@@ -59,6 +64,10 @@ export class LazyRequestDemoComponent {
         this.error.set(err);
       },
     });
+  }
+
+  ngOnDestroy() {
+    this.currentSubscription?.unsubscribe();
   }
 
   public toggleCachePreference() {

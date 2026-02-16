@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Subject, switchMap, tap } from 'rxjs';
 import { RtkService } from '../services/rtk-service';
 import { WeatherResponse } from '../models/weather';
 
@@ -11,6 +12,8 @@ import { WeatherResponse } from '../models/weather';
 })
 export class TagInvalidationDemo {
   private rtkService = inject(RtkService);
+
+  public mutationLoading = signal(false);
 
   // Multiple queries with the same tag - they will all be invalidated together
   public parisWeather$ = this.rtkService.makeQueryRequest<WeatherResponse>({
@@ -40,31 +43,42 @@ export class TagInvalidationDemo {
   }
 
   // Method 2: Mutation-based invalidation (simulated)
-  public mutationInvalidateTag() {
-    console.log('=== Mutation-Based Tag Invalidation ===');
-    console.log(
-      'Making a mutation request that will auto-invalidate "cities" tag after completion',
-    );
+  private mutationTrigger$ = new Subject<void>();
+  private mutation$ = this.mutationTrigger$.pipe(
+    switchMap(() => {
+      this.mutationLoading.set(true);
+      console.log('=== Mutation-Based Tag Invalidation ===');
+      console.log(
+        'Making a mutation request that will auto-invalidate "cities" tag after completion',
+      );
 
-    // Simulate a mutation that updates weather data
-    // In a real app, this would be a POST/PUT/DELETE to your API
-    this.rtkService
-      .makeMutationRequest<any, any>({
-        endpoint:
-          'https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current=temperature_2m',
-        payload: {},
-        invalidatesTag: 'cities',
-        method: 'GET', // Using GET for demo purposes (Open-Meteo doesn't have mutation endpoints)
-      })
-      .subscribe({
-        next: () => {
-          console.log(
-            'Mutation completed successfully - cache invalidation triggered automatically',
-          );
-        },
-        error: (err) => {
-          console.error('Mutation failed:', err);
-        },
-      });
+      // Simulate a mutation that updates weather data
+      // In a real app, this would be a POST/PUT/DELETE to your API
+      return this.rtkService
+        .makeMutationRequest<any, any>({
+          endpoint:
+            'https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current=temperature_2m',
+          payload: {},
+          invalidatesTag: 'cities',
+          method: 'GET', // Using GET for demo purposes (Open-Meteo doesn't have mutation endpoints)
+        })
+        .pipe(
+          tap({
+            next: () => {
+              this.mutationLoading.set(false);
+              console.log('Mutation observable completed');
+            },
+            error: () => {
+              this.mutationLoading.set(false);
+            },
+          }),
+        );
+    }),
+  );
+
+  private mutationResult = toSignal(this.mutation$);
+
+  public mutationInvalidateTag() {
+    this.mutationTrigger$.next();
   }
 }

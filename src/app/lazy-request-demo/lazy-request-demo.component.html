@@ -43,38 +43,40 @@
     </p>
   </div>
 
-  @if (loading()) {
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Fetching weather data...</p>
-    </div>
-  }
+  @if (weatherResult(); as result) {
+    @if (result.isLoading) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Fetching weather data...</p>
+      </div>
+    }
 
-  @if (error()) {
-    <div class="error">Error loading weather data: {{ error().message }}</div>
-  }
+    @if (result.error) {
+      <div class="error">Error loading weather data</div>
+    }
 
-  @if (weatherData(); as weather) {
-    <div class="weather-result">
-      <h3>Weather in {{ selectedLocation()?.name }}</h3>
-      <div class="weather-grid">
-        <div class="weather-item">
-          <span class="label">Temperature:</span>
-          <span class="value">{{ weather.current.temperature_2m }}°C</span>
-        </div>
-        <div class="weather-item">
-          <span class="label">Wind Speed:</span>
-          <span class="value">{{ weather.current.wind_speed_10m }} km/h</span>
-        </div>
-        <div class="weather-item">
-          <span class="label">Timezone:</span>
-          <span class="value">{{ weather.timezone }}</span>
-        </div>
-        <div class="weather-item">
-          <span class="label">Last Updated:</span>
-          <span class="value">{{ weather.current.time }}</span>
+    @if (result.data; as weather) {
+      <div class="weather-result">
+        <h3>Weather in {{ selectedLocation()?.name }}</h3>
+        <div class="weather-grid">
+          <div class="weather-item">
+            <span class="label">Temperature:</span>
+            <span class="value">{{ weather.current.temperature_2m }}°C</span>
+          </div>
+          <div class="weather-item">
+            <span class="label">Wind Speed:</span>
+            <span class="value">{{ weather.current.wind_speed_10m }} km/h</span>
+          </div>
+          <div class="weather-item">
+            <span class="label">Timezone:</span>
+            <span class="value">{{ weather.timezone }}</span>
+          </div>
+          <div class="weather-item">
+            <span class="label">Last Updated:</span>
+            <span class="value">{{ weather.current.time }}</span>
+          </div>
         </div>
       </div>
-    </div>
+    }
   }
 </div>

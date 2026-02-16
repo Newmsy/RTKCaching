@@ -1,0 +1,54 @@
+<div class="weather-container">
+  <h1>Weather Dashboard</h1>
+
+  <div class="location-selector">
+    <h2>Select Location:</h2>
+    <div class="location-buttons">
+      @for (location of locations(); track location.name) {
+        <button
+          (click)="selectLocation(location)"
+          [class.active]="selectedLocation().name === location.name"
+        >
+          {{ location.name }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (weatherResult(); as result) {
+    @if (result.isLoading) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading weather data...</p>
+      </div>
+    } @else if (result.error) {
+      <div class="error">Error loading weather data: {{ result.error.message }}</div>
+    } @else if (result.data; as weather) {
+      <div class="weather-info">
+        <h2>Current Weather in {{ selectedLocation().name }}</h2>
+        <div class="weather-details">
+          <div class="detail-card">
+            <span class="label">Temperature:</span>
+            <span class="value"
+              >{{ weather.current.temperature_2m }} {{ weather.current_units.temperature_2m }}</span
+            >
+          </div>
+          <div class="detail-card">
+            <span class="label">Wind Speed:</span>
+            <span class="value"
+              >{{ weather.current.wind_speed_10m }} {{ weather.current_units.wind_speed_10m }}</span
+            >
+          </div>
+          <div class="detail-card">
+            <span class="label">Timezone:</span>
+            <span class="value">{{ weather.timezone }}</span>
+          </div>
+          <div class="detail-card">
+            <span class="label">Last Updated:</span>
+            <span class="value">{{ weather.current.time }}</span>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

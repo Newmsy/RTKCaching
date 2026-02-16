@@ -1,0 +1,80 @@
+<div class="lazy-demo-container">
+  <h1>Lazy Request Demo</h1>
+
+  <div class="info-section">
+    <h2>What is a Lazy Request?</h2>
+    <p>
+      A lazy request is executed on-demand rather than immediately when the component loads. This is
+      useful for user-triggered actions like button clicks.
+    </p>
+  </div>
+
+  <div class="cache-toggle">
+    <label>
+      <input type="checkbox" [checked]="preferCache()" (change)="toggleCachePreference()" />
+      <span>Prefer Cache (reuse cached data)</span>
+    </label>
+    <p class="toggle-hint">
+      {{
+        preferCache() ? '✓ Will use cached data if available' : '✗ Will always make fresh requests'
+      }}
+    </p>
+  </div>
+
+  <div class="location-grid">
+    <h2>Choose a city to fetch weather:</h2>
+    <div class="city-buttons">
+      @for (location of locations; track location.name) {
+        <button
+          (click)="fetchWeather(location)"
+          [class.active]="selectedLocation()?.name === location.name"
+        >
+          {{ location.name }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="fetch-stats">
+    <p><strong>Total fetches:</strong> {{ fetchCount() }}</p>
+    <p class="hint">
+      With cache enabled, clicking the same city multiple times won't increase the count. With cache
+      disabled, every click triggers a new request.
+    </p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Fetching weather data...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error">Error loading weather data: {{ error().message }}</div>
+  }
+
+  @if (weatherData(); as weather) {
+    <div class="weather-result">
+      <h3>Weather in {{ selectedLocation()?.name }}</h3>
+      <div class="weather-grid">
+        <div class="weather-item">
+          <span class="label">Temperature:</span>
+          <span class="value">{{ weather.current.temperature_2m }}°C</span>
+        </div>
+        <div class="weather-item">
+          <span class="label">Wind Speed:</span>
+          <span class="value">{{ weather.current.wind_speed_10m }} km/h</span>
+        </div>
+        <div class="weather-item">
+          <span class="label">Timezone:</span>
+          <span class="value">{{ weather.timezone }}</span>
+        </div>
+        <div class="weather-item">
+          <span class="label">Last Updated:</span>
+          <span class="value">{{ weather.current.time }}</span>
+        </div>
+      </div>
+    </div>
+  }
+</div>

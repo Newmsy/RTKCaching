@@ -1,0 +1,40 @@
+<div class="cache-control-container">
+  <h1>Cache Control Demo</h1>
+
+  <div class="info-section">
+    <h2>How it works:</h2>
+    <ul>
+      <li>This component fetches weather data for London using the cached RTK service</li>
+      <li>Navigate between pages - the data stays cached</li>
+      <li>Click "Clear Cache" to invalidate all cached data</li>
+      <li>Active subscriptions will refetch automatically, inactive ones won't</li>
+    </ul>
+  </div>
+
+  <div class="weather-display">
+    @if (londonWeatherResult(); as result) {
+      @if (result.isLoading) {
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Loading weather data...</p>
+        </div>
+      } @else if (result.error) {
+        <div class="error">Error loading weather data: {{ result.error.message }}</div>
+      } @else if (result.data; as weather) {
+        <div class="weather-card">
+          <h3>London Weather (Cached)</h3>
+          <div class="weather-info">
+            <p><strong>Temperature:</strong> {{ weather.current.temperature_2m }}°C</p>
+            <p><strong>Wind Speed:</strong> {{ weather.current.wind_speed_10m }} km/h</p>
+            <p><strong>Last Updated:</strong> {{ weather.current.time }}</p>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="control-section">
+    <button class="clear-button" (click)="clearCache()">Clear Cache</button>
+    <p class="hint">Watch the browser console to see cache invalidation logs</p>
+  </div>
+</div>

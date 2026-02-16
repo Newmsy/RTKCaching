@@ -1,0 +1,110 @@
+<div class="tag-invalidation-container">
+  <h1>Tag Invalidation Demo</h1>
+
+  <div class="info-section">
+    <h2>How Tag Invalidation Works:</h2>
+    <p>
+      Multiple queries can share the same tag (e.g., "cities"). When that tag is invalidated, ALL
+      queries with that tag will refetch automatically (if they have active subscribers).
+    </p>
+    <p class="highlight">
+      Below are 3 weather queries, all tagged with <code>"cities"</code>. Invalidating this tag will
+      trigger all 3 to refetch simultaneously.
+    </p>
+    <p class="highlight">
+      <strong>Smart Invalidation:</strong> If you navigate to another page (unsubscribing from these
+      queries) and then click "Cache Control" → "Clear Cache", these queries will be marked as
+      <em>stale</em>. When you navigate back here, they'll automatically refetch with fresh data!
+    </p>
+  </div>
+
+  <div class="methods-section">
+    <h2>Two Ways to Invalidate Tags:</h2>
+    <div class="methods-grid">
+      <div class="method-card">
+        <h3>Method 1: Manual Invalidation</h3>
+        <p>Directly call <code>invalidateCacheByTag(tag)</code> to trigger refetches.</p>
+        <button class="manual-button" (click)="manualInvalidateTag()">
+          Invalidate "cities" Tag Manually
+        </button>
+      </div>
+
+      <div class="method-card">
+        <h3>Method 2: Mutation-Based Invalidation</h3>
+        <p>
+          Make a mutation request with <code>invalidatesTag</code>. The tag will be invalidated
+          automatically after the mutation succeeds.
+        </p>
+        <button class="mutation-button" (click)="mutationInvalidateTag()">
+          Run Mutation (Auto-Invalidates "cities")
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="weather-grid">
+    <div class="weather-card">
+      <h3>Paris Weather</h3>
+      @if (parisWeatherResult(); as result) {
+        @if (result.isLoading) {
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+          </div>
+        } @else if (result.error) {
+          <div class="error">Error: {{ result.error.message }}</div>
+        } @else if (result.data; as weather) {
+          <div class="weather-info">
+            <p><strong>Temp:</strong> {{ weather.current.temperature_2m }}°C</p>
+            <p><strong>Wind:</strong> {{ weather.current.wind_speed_10m }} km/h</p>
+            <p class="time"><strong>Updated:</strong> {{ weather.current.time }}</p>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="weather-card">
+      <h3>London Weather</h3>
+      @if (londonWeatherResult(); as result) {
+        @if (result.isLoading) {
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+          </div>
+        } @else if (result.error) {
+          <div class="error">Error: {{ result.error.message }}</div>
+        } @else if (result.data; as weather) {
+          <div class="weather-info">
+            <p><strong>Temp:</strong> {{ weather.current.temperature_2m }}°C</p>
+            <p><strong>Wind:</strong> {{ weather.current.wind_speed_10m }} km/h</p>
+            <p class="time"><strong>Updated:</strong> {{ weather.current.time }}</p>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="weather-card">
+      <h3>Berlin Weather</h3>
+      @if (berlinWeatherResult(); as result) {
+        @if (result.isLoading) {
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+          </div>
+        } @else if (result.error) {
+          <div class="error">Error: {{ result.error.message }}</div>
+        } @else if (result.data; as weather) {
+          <div class="weather-info">
+            <p><strong>Temp:</strong> {{ weather.current.temperature_2m }}°C</p>
+            <p><strong>Wind:</strong> {{ weather.current.wind_speed_10m }} km/h</p>
+            <p class="time"><strong>Updated:</strong> {{ weather.current.time }}</p>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="console-hint">
+    <p>💡 <strong>Tip:</strong> Watch the browser console to see cache invalidation logs</p>
+  </div>
+</div>

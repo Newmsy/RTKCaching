@@ -26,7 +26,7 @@ export class RtkService {
   private readonly baseUrl = 'ENTER_YOUR_API_BASE_URL_HERE'; // Set your API base URL if needed
   private httpClient = inject(HttpClient);
 
-  private tags = new Map<string, string>(); // cache key to tag mapping
+  private tags = new Map<string, Set<string>>(); // cache key to set of tags mapping
   private cache = new Map<
     string,
     {
@@ -66,7 +66,10 @@ export class RtkService {
       this.cache.set(cacheKey, { data$, refetch$, subscriptionCount: 0, isStale: false });
 
       if (providesTag) {
-        this.tags.set(cacheKey, providesTag);
+        if (!this.tags.has(cacheKey)) {
+          this.tags.set(cacheKey, new Set());
+        }
+        this.tags.get(cacheKey)!.add(providesTag);
       }
     }
 
@@ -143,8 +146,8 @@ export class RtkService {
 
   public invalidateCacheByTag(tag: string) {
     console.log('Invalidating tag:', tag);
-    for (const [key, value] of this.tags.entries()) {
-      if (value === tag && this.cache.has(key)) {
+    for (const [key, tagSet] of this.tags.entries()) {
+      if (tagSet.has(tag) && this.cache.has(key)) {
         const cacheEntry = this.cache.get(key)!;
 
         // Only refetch if there are active subscriptions

@@ -64,13 +64,14 @@ export class RtkService {
       );
 
       this.cache.set(cacheKey, { data$, refetch$, subscriptionCount: 0, isStale: false });
+    }
 
-      if (providesTag) {
-        if (!this.tags.has(cacheKey)) {
-          this.tags.set(cacheKey, new Set());
-        }
-        this.tags.get(cacheKey)!.add(providesTag);
+    // Always register the tag, even if the cache entry already exists
+    if (providesTag) {
+      if (!this.tags.has(cacheKey)) {
+        this.tags.set(cacheKey, new Set());
       }
+      this.tags.get(cacheKey)!.add(providesTag);
     }
 
     const cacheEntry = this.cache.get(cacheKey)!;
